@@ -3,6 +3,7 @@ package it.polito.tdp.borders.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -12,19 +13,68 @@ import java.util.TreeMap;
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
 import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.event.ConnectedComponentTraversalEvent;
+import org.jgrapht.event.EdgeTraversalEvent;
+import org.jgrapht.event.TraversalListener;
+import org.jgrapht.event.VertexTraversalEvent;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.traverse.BreadthFirstIterator;
+import org.jgrapht.traverse.GraphIterator;
 
 import it.polito.tdp.borders.db.BordersDAO;
 
+
 public class Model {
 	
+	public class TraversalListenerParole implements TraversalListener<Country, DefaultEdge> {
+
+		@Override
+		public void connectedComponentFinished(ConnectedComponentTraversalEvent arg0) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void connectedComponentStarted(ConnectedComponentTraversalEvent arg0) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void edgeTraversed(EdgeTraversalEvent<DefaultEdge> ev) {
+			// TODO Auto-generated method stub
+
+			Country c = grafo.getEdgeTarget(ev.getEdge());
+			
+			if(!raggiungibili.contains(c))
+				raggiungibili.add(c);
+			
+		}
+
+		@Override
+		public void vertexFinished(VertexTraversalEvent<Country> arg0) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void vertexTraversed(VertexTraversalEvent<Country> arg0) {
+			// TODO Auto-generated method stub
+
+		}
+
+	}
+
+
+
 	private Map<String, Country> idCountryMap;
 	private BordersDAO dao;
 	
 	//per il grafo
 	private Graph<Country, DefaultEdge> grafo;
 	private List<Country> vertici;
+	private Set<Country> raggiungibili;
 
 	public Model() {
 		
@@ -103,5 +153,25 @@ public class Model {
 		
 		return 0;
 }
+
+
+
+	public List<Country> getRaggiungibili(Country partenza) {
+		
+		raggiungibili = new HashSet<>();
+		
+		GraphIterator<Country, DefaultEdge> it = new BreadthFirstIterator<>(this.grafo, partenza);
+		
+		it.addTraversalListener(new Model.TraversalListenerParole());
+		
+		while(it.hasNext()) {
+			it.next();	
+		}
+		
+		List <Country> result = new LinkedList<>(raggiungibili);
+		Collections.sort(result);
+		
+		return result;
+	}
 	
 }

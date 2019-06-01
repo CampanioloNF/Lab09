@@ -74,6 +74,18 @@ public class BordersController {
     @FXML
     void doTrovaVicini(ActionEvent event) {
 
+    	txtResult.clear();
+    	
+    	if(this.boxCountries.getValue()!=null) {
+    		
+    		txtResult.appendText("I paesi confinanti con "+boxCountries.getValue()+" sono:\n");
+    		
+    		for(Country c : model.getRaggiungibili(boxCountries.getValue())) {
+    			txtResult.appendText(c+"\n");
+    		}
+    		
+    	}
+    	
     }
 
     @FXML
